@@ -10,10 +10,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-# Enable CORS for all origins (you might want to restrict this in a production environment)
+# Enable CORS for all origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Update this with the appropriate list of allowed origins
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -21,8 +21,9 @@ app.add_middleware(
 
 # Connect to MongoDB
 client = MongoClient("mongodb://localhost:27017")
-db = client["dyte"]  # Replace with your actual database name
-collection = db["dyte"]
+db = client["dyte"]
+collection = db["logs"]
+collection.create_index([('message', 'text')])
 
 class MongoEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -58,6 +59,7 @@ def kafka_consumer_worker():
         # Add timestamp field as a datetime object
         data["tObj"] = parser.parse(data["timestamp"])
         
+        # Copying metadata.parentResourceId in pRID for easy filtering
         data['pRID'] = data['metadata']['parentResourceId']
         # Insert the data into MongoDB
         collection.insert_one(data)
@@ -91,6 +93,7 @@ async def filtered_logs(
     spanId: str = Query(None, title="Span ID"),
     commit: str = Query(None, title="Commit"),
     pRID: str = Query(None, title="Parent Resource ID"),
+    search_text: str = Query(None, title="Search Text"),
 ):
     filters = {
         key: value
@@ -103,6 +106,12 @@ async def filtered_logs(
         filters["tObj"] = {"$gte": start_timestamp, "$lte": end_timestamp}
         del filters['start_timestamp']
         del filters['end_timestamp']
+    
+    # Add text search
+    if search_text:
+        filters["$text"] = {"$search": search_text}
+        del filters['search_text']
+    
     print(filters)
     c = collection.find(filters, {'_id': False, 'pRID': False, 'tObj': False})
     op = list()

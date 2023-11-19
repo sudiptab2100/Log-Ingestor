@@ -10,6 +10,9 @@
     <h2>Filter Data</h2>
 
     <form id="filterForm">
+        <label for="search_text">Search Text:</label>
+        <input type="text" id="search_text" name="search_text">
+
         <label for="level">Level:</label>
         <input type="text" id="level" name="level">
 
@@ -59,8 +62,6 @@
                 const response = await fetch(`http://localhost:3000/filtered_logs/?${queryString}`);
                 const data = await response.json();
 
-                // Display the fetched data in the result container
-                // document.getElementById('resultContainer').innerHTML = JSON.stringify(data, null, 2);
                 // Display the fetched data in an organized manner
                 renderData(data);
             } catch (error) {
