@@ -100,7 +100,7 @@ New logs can ingested to the server on port 3000 using the following `cURL` comm
       }
   }'
   ```
-
+See the demo of working project: [YouTube Video](https://youtu.be/jZjfLeWZkDM)
 
 
 <!-- LICENSE -->
