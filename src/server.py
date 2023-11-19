@@ -6,8 +6,18 @@ from kafka import KafkaProducer, KafkaConsumer
 import json
 from threading import Thread
 from bson import ObjectId
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+# Enable CORS for all origins (you might want to restrict this in a production environment)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Update this with the appropriate list of allowed origins
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Connect to MongoDB
 client = MongoClient("mongodb://localhost:27017")
