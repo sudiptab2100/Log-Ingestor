@@ -25,11 +25,12 @@ db = client["dyte"]
 collection = db["logs"]
 collection.create_index([('message', 'text')])
 
+# Custom JSON encoder for handling ObjectId
 class MongoEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, ObjectId):
             return str(obj)
-        return json.JSONEncoder.default(self, obj)
+        return super().default(obj)
 
 # Kafka configuration
 kafka_bootstrap_servers = 'localhost:9092'
@@ -41,9 +42,6 @@ producer = KafkaProducer(
     value_serializer=lambda v: json.dumps(v, cls=MongoEncoder).encode('utf-8')
 )
 
-def kafka_producer_worker(data):
-    producer.send(kafka_topic, value=data)
-
 # Kafka Consumer
 consumer = KafkaConsumer(
     kafka_topic,
@@ -51,19 +49,22 @@ consumer = KafkaConsumer(
     value_deserializer=lambda x: json.loads(x.decode('utf-8'))
 )
 
+def kafka_producer_worker(data):
+    producer.send(kafka_topic, value=data)
+
 def kafka_consumer_worker():
     for message in consumer:
-        # Process the Kafka messages as needed
-        print(f"Received message: {message.value}")
-        data = message.value
-        # Add timestamp field as a datetime object
-        data["tObj"] = parser.parse(data["timestamp"])
-        
-        # Copying metadata.parentResourceId in pRID for easy filtering
-        data['pRID'] = data['metadata']['parentResourceId']
-        # Insert the data into MongoDB
-        collection.insert_one(data)
-        print("Stored in DB")
+        try:
+            # Process the Kafka messages as needed
+            print(f"Received message: {message.value}")
+            data = message.value
+            data["tObj"] = parser.parse(data["timestamp"])  # Add timestamp field as a datetime object
+            data['pRID'] = data['metadata']['parentResourceId']  # Copying metadata.parentResourceId in pRID for easy filtering
+            collection.insert_one(data)  # Insert the data into MongoDB
+            print("Stored in DB")
+
+        except Exception as e:
+            print(f"Error processing Kafka message: {str(e)}")
 
 # Start Kafka Consumer in a separate thread
 consumer_thread = Thread(target=kafka_consumer_worker)
@@ -95,28 +96,29 @@ async def filtered_logs(
     pRID: str = Query(None, title="Parent Resource ID"),
     search_text: str = Query(None, title="Search Text"),
 ):
+    # Build filters based on query parameters
     filters = {
         key: value
         for key, value in locals().items()
         if key not in ["self", "filters"] and value is not None
     }
-    
+
     # Update timestamp filters to use $gte and $lte for the range
     if start_timestamp:
         filters["tObj"] = {"$gte": start_timestamp, "$lte": end_timestamp}
         del filters['start_timestamp']
         del filters['end_timestamp']
-    
+
     # Add text search
     if search_text:
         filters["$text"] = {"$search": search_text}
         del filters['search_text']
-    
+
     print(filters)
-    c = collection.find(filters, {'_id': False, 'pRID': False, 'tObj': False})
-    op = list()
-    for _ in c: op.append(_)
-    return op
+    
+    # Fetch data from MongoDB based on filters
+    result = list(collection.find(filters, {'_id': False, 'pRID': False, 'tObj': False}))
+    return result
 
 if __name__ == "__main__":
     import uvicorn

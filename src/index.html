@@ -3,44 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Filter Data</title>
+    <title>Search Logs</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
 </head>
 <body>
 
     <h2>Filter Data</h2>
 
     <form id="filterForm">
-        <label for="search_text">Search Text:</label>
-        <input type="text" id="search_text" name="search_text">
-
-        <label for="level">Level:</label>
-        <input type="text" id="level" name="level">
-
-        <label for="message">Message:</label>
-        <input type="text" id="message" name="message">
-
-        <label for="resourceId">Resource ID:</label>
-        <input type="text" id="resourceId" name="resourceId">
-
-        <label for="start_timestamp">Start Timestamp:</label>
-        <input type="text" id="start_timestamp" name="start_timestamp">
-
-        <label for="end_timestamp">End Timestamp:</label>
-        <input type="text" id="end_timestamp" name="end_timestamp">
-
-        <label for="traceId">Trace ID:</label>
-        <input type="text" id="traceId" name="traceId">
-
-        <label for="spanId">Span ID:</label>
-        <input type="text" id="spanId" name="spanId">
-
-        <label for="commit">Commit:</label>
-        <input type="text" id="commit" name="commit">
-
-        <label for="pRID">Parent Resource ID:</label>
-        <input type="text" id="pRID" name="pRID">
-
-        <button type="button" onclick="fetchFilteredData()">Fetch Data</button>
+        <table>
+            <tr>
+                <td colspan="2">
+                    <label for="search_text">Search Text:</label>
+                    <input type="text" id="search_text" name="search_text" style="width: 100%;">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="level">Level:</label>
+                    <input type="text" id="level" name="level">
+                </td>
+                <td>
+                    <label for="message">Message:</label>
+                    <input type="text" id="message" name="message">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="resourceId">Resource ID:</label>
+                    <input type="text" id="resourceId" name="resourceId">
+                </td>
+                <td>
+                    <label for="pRID">Parent Resource ID:</label>
+                    <input type="text" id="pRID" name="pRID">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="start_timestamp">Start Timestamp:</label>
+                    <input type="text" id="start_timestamp" name="start_timestamp">
+                </td>
+                <td>
+                    <label for="end_timestamp">End Timestamp:</label>
+                    <input type="text" id="end_timestamp" name="end_timestamp">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="traceId">Trace ID:</label>
+                    <input type="text" id="traceId" name="traceId">
+                </td>
+                <td>
+                    <label for="spanId">Span ID:</label>
+                    <input type="text" id="spanId" name="spanId">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="commit">Commit:</label>
+                    <input type="text" id="commit" name="commit">
+                </td>
+                <td>
+                    <button type="button" onclick="fetchFilteredData()">Fetch Data</button>
+                </td>
+            </tr>
+        </table>
     </form>
 
     <div id="resultContainer"></div>
