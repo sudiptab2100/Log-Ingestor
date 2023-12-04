@@ -111,6 +111,6 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Sudipta Basak - [@sudipta__basak](https://twitter.com/sudipta__basak) - 2022pis0030@iitjammu.ac.in
+Sudipta Basak - [@sudipta__basak](https://twitter.com/sudipta__basak) - sudiptab2100@gmai.com
 
 Project Link: [https://github.com/dyte-submissions/november-2023-hiring-sudiptab2100](https://github.com/dyte-submissions/november-2023-hiring-sudiptab2100)
